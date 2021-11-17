@@ -28,9 +28,48 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
   double? dolar;
   double? euro;
 
+  void _realChanged(String text){
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double real = double.parse(text);
+    dolarController.text = (real/dolar!).toStringAsFixed(2);
+    euroController.text = (real/euro!).toStringAsFixed(2);
+  }
+
+  void _dolarChanged(String text){
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double dolar = double.parse(text);
+    realController.text = (dolar * this.dolar!).toStringAsFixed(2);
+    euroController.text = (dolar * this.dolar! / euro!).toStringAsFixed(2);
+  }
+
+  void _euroChanged(String text){
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro!).toStringAsFixed(2);
+    dolarController.text = (euro * this.euro! / dolar!).toStringAsFixed(2);
+  }
+  void _clearAll(){
+    realController.text = "";
+    dolarController.text = "";
+    euroController.text = "";
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,47 +111,11 @@ class _HomeState extends State<Home> {
                         children: <Widget>[
                           Icon(Icons.monetization_on,
                               size: 150, color: Colors.amber),
-                          TextField(
-                            decoration: InputDecoration(
-                                labelText: "Reais",
-                                labelStyle: TextStyle(color: Colors.blueAccent),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                  BorderSide(color: Colors.blueAccent),
-                                ),
-                                prefixText: "R\$"
-                            ),
-                            style: TextStyle(
-                                color: Colors.blueAccent, fontSize: 25),
-                          ),
+                          buildTextField("Reais", "R\$", realController, _realChanged),
                           Divider(),
-                          TextField(
-                            decoration: InputDecoration(
-                                labelText: "Dólares",
-                                labelStyle: TextStyle(color: Colors.blueAccent),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                  BorderSide(color: Colors.blueAccent),
-                                ),
-                                prefixText: "US\$"
-                            ),
-                            style: TextStyle(
-                                color: Colors.blueAccent, fontSize: 25),
-                          ),
+                          buildTextField("Dolares", "US\$", dolarController, _dolarChanged),
                           Divider(),
-                          TextField(
-                            decoration: InputDecoration(
-                                labelText: "Euros",
-                                labelStyle: TextStyle(color: Colors.blueAccent),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                  BorderSide(color: Colors.blueAccent),
-                                ),
-                                prefixText: "€"
-                            ),
-                            style: TextStyle(
-                                color: Colors.blueAccent, fontSize: 25),
-                          )
+                          buildTextField("Euros", "€\$", euroController, _euroChanged),
                         ],
                       ),
                     );
@@ -120,4 +123,24 @@ class _HomeState extends State<Home> {
               }
             }));
   }
+}
+Widget buildTextField(String label, String prefix, TextEditingController c, Function f){
+      return TextField(
+        decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(color: Colors.blueAccent),
+            enabledBorder: OutlineInputBorder(
+              borderSide:
+              BorderSide(color: Colors.blueAccent),
+            ),
+            prefixText: prefix,
+        ),
+        style: TextStyle(
+            color: Colors.blueAccent, fontSize: 25),
+        controller: c,
+        onChanged: (texto){
+          f(texto);
+        },
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+      );
 }
